@@ -14,7 +14,7 @@ end
 
 # spec_helper.rb
 RSpec.configure do |c|
-  c.include Warden::Test::ControllerHelpers
+  c.include Warden::Test::ControllerHelpers, type: :controller
 end
 ```
 
