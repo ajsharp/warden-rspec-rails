@@ -31,7 +31,7 @@ module Warden
       # Quick access to Warden::Proxy.
       def warden
         @warden ||= begin
-          manager = Warden::Manager.new(nil, &Rails.application.config.middleware.detect{|m| m.name == 'RailsWarden::Manager'}.block)
+          manager = Warden::Manager.new(nil, &Rails.application.config.middleware.detect{|m| m.name == 'RailsWarden::Manager' or m.name == 'Warden::Manager'}.block)
           @request.env['warden'] = Warden::Proxy.new(@request.env, manager)
         end
       end
