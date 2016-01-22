@@ -1,5 +1,6 @@
 # test/test_helpers/warden.rb
 
+# Based on http://stackoverflow.com/questions/13420923/configuring-warden-for-use-in-rspec-controller-specs
 module Warden
   # Warden::Test::ControllerHelpers provides a facility to test controllers in isolation
   # Most of the code was extracted from Devise's Devise::TestHelpers.
@@ -7,13 +8,7 @@ module Warden
     module ControllerHelpers
       def self.included(base)
         base.class_eval do
-          before(:each) do
-            setup_controller_for_warden
-          end
-
-          before(:each) do
-            warden
-          end
+          setup :setup_controller_for_warden, :warden if respond_to?(:setup)
         end
       end
 
@@ -31,7 +26,7 @@ module Warden
       # Quick access to Warden::Proxy.
       def warden
         @warden ||= begin
-          manager = Warden::Manager.new(nil, &Rails.application.config.middleware.detect{|m| m.name == 'RailsWarden::Manager'}.block)
+          manager = Warden::Manager.new(nil, &Rails.application.config.middleware.detect{|m| m.name == 'Warden::Manager'}.block)
           @request.env['warden'] = Warden::Proxy.new(@request.env, manager)
         end
       end
