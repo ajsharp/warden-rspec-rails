@@ -1,4 +1,6 @@
-# test/test_helpers/warden.rb
+# frozen_string_literal: true
+
+require "warden" # just in case
 
 # Based on http://stackoverflow.com/questions/13420923/configuring-warden-for-use-in-rspec-controller-specs
 module Warden
@@ -13,7 +15,7 @@ module Warden
       end
 
       # Override process to consider warden.
-      def process(*)
+      def process(*, **)
         _catch_warden { super }
 
         @response
@@ -27,11 +29,31 @@ module Warden
       # Quick access to Warden::Proxy.
       def warden #:nodoc:
         @request.env['warden'] ||= begin
-          manager = Warden::Manager.new(nil, &Rails.application.config.middleware.detect{|m| m.name == 'RailsWarden::Manager'}.block)
+          manager = Warden::Manager.new(nil, &Rails.application.config.middleware.detect { |m| m.name.include?('Warden::Manager') }.block)
           Warden::Proxy.new(@request.env, manager)
         end
       end
 
+      # Warden::Test::Helpers style login_as for controller tests.
+      def login_as(user, opts = {})
+        opts[:event] ||= :authentication
+        warden.set_user(user, opts)
+      end
+
+      # Warden::Test::Helpers style logout for controller tests.
+      def logout(*scopes)
+        warden.logout(*scopes)
+      end
+
+      # Reset the logins without logging out, so the next request will fetch.
+      def unlogin(*scopes)
+        users = warden.instance_variable_get(:@users)
+        if scopes.empty?
+          users.clear
+        else
+          scopes.each { |scope| users.delete(scope) }
+        end
+      end
 
       protected
 
@@ -61,8 +83,11 @@ module Warden
       end
 
       def _process_unauthenticated(env, options = {})
-        options[:action] ||= :unauthenticated
         proxy = request.env['warden']
+        options[:action] ||= begin
+          opts = proxy.config[:scope_defaults][proxy.config.default_scope] || {}
+          opts[:action] || "unauthenticated"
+        end
         result = options[:result] || proxy.result
 
         ret = case result
