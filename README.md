@@ -1,7 +1,7 @@
 ## What
 
-Rails controller spec helpers for warden. If you're using warden
-without devise in rails, due to how action controller sets up the test
+Rails controller spec helpers for Warden. If you're using Warden
+without Devise in rails, due to how ActionController sets up the test
 environment, custom test setup code is necessary.
 
 ## Usage
@@ -15,12 +15,16 @@ end
 # spec_helper.rb
 RSpec.configure do |c|
   c.include Warden::Test::ControllerHelpers, type: :controller
-  
-  def sign_in(user)
-    warden.set_user(user)
-  end
 end
 ```
+
+This will define helper methods in controller tests that you can use to manage
+authentication, such as:
+- `warden`: Access the `Warden::Proxy`.
+- `login_as`: Same as the `Warden::Test::Helpers` `login_as` method.
+- `logout`: Same as the `Warden::Test::Helpers` `logout` method.
+- `unlogin`: Removes the user(s) from the logged-in list, but leaves the
+    session value so the user can be fetched on access.
 
 ## Thanks
 
