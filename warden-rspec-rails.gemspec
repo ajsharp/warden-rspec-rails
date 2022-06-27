@@ -4,6 +4,7 @@ $:.push File.expand_path("../lib", __FILE__)
 Gem::Specification.new do |s|
   s.name        = "warden-rspec-rails"
   s.version     = '0.3.0'
+  s.licenses    = ['MIT']
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Alex Sharp"]
   s.email       = ["ajsharp@gmail.com"]
